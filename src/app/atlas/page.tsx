@@ -3,12 +3,14 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAtlasStore } from "@/lib/store";
+import { processDataClientSide } from "@/lib/client-processing";
 import { AtlasView } from "@/components/atlas/AtlasView";
 
 export default function AtlasPage() {
   const router = useRouter();
   const { setDataset, setProcessing, isProcessing, points } = useAtlasStore();
   const [error, setError] = useState<string | null>(null);
+  const [progressMsg, setProgressMsg] = useState("Initializing...");
 
   useEffect(() => {
     const raw = sessionStorage.getItem("atlas-data");
@@ -17,32 +19,29 @@ export default function AtlasPage() {
       return;
     }
 
-    const { records, datasetName } = JSON.parse(raw);
+    let parsed: { records: Record<string, string | number>[]; datasetName: string };
+    try {
+      parsed = JSON.parse(raw);
+    } catch {
+      router.push("/");
+      return;
+    }
+
+    const { records, datasetName } = parsed;
     if (!records || records.length === 0) {
       router.push("/");
       return;
     }
 
-    // Process data
+    // Process data client-side
     setProcessing(true);
-    fetch("/api/process", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ records, datasetName }),
-    })
-      .then(async (res) => {
-        if (!res.ok) {
-          const err = await res.json();
-          throw new Error(err.error || "Processing failed");
-        }
-        return res.json();
-      })
+    processDataClientSide(records, datasetName, (msg) => setProgressMsg(msg))
       .then((data) => {
         setDataset(datasetName, data.points, data.columns, data.clusters, records);
         setProcessing(false);
       })
       .catch((err) => {
-        setError(err.message);
+        setError(err instanceof Error ? err.message : "Processing failed");
         setProcessing(false);
       });
   }, [router, setDataset, setProcessing]);
@@ -53,7 +52,7 @@ export default function AtlasPage() {
         <div className="w-16 h-16 border-4 border-forest-400 border-t-transparent rounded-full animate-spin" />
         <div className="text-center">
           <h2 className="text-white text-xl font-semibold mb-2">Processing Your Data</h2>
-          <p className="text-white/50 text-sm">Generating embeddings, reducing dimensions, detecting clusters...</p>
+          <p className="text-white/50 text-sm">{progressMsg}</p>
         </div>
       </div>
     );
