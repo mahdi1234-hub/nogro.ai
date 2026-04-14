@@ -1,0 +1,113 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+:root {
+  --forest-900: #0d1f0d;
+  --forest-800: #1a2e1a;
+  --forest-700: #1e3d1a;
+  --forest-600: #2d5a27;
+  --forest-500: #3d7a35;
+  --canvas-bg: #f5f5f0;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Inter', system-ui, sans-serif;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #c4c4c4;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #a0a0a0;
+}
+
+/* Selection toolbar icons */
+.tool-icon {
+  @apply w-8 h-8 flex items-center justify-center rounded cursor-pointer transition-colors;
+}
+
+.tool-icon:hover {
+  @apply bg-gray-100;
+}
+
+.tool-icon.active {
+  @apply bg-forest-100 text-forest-700;
+}
+
+/* Deck.gl canvas */
+.deck-canvas {
+  position: absolute !important;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* Topic labels on map */
+.topic-label {
+  font-size: 24px;
+  font-weight: 600;
+  color: rgba(80, 80, 80, 0.4);
+  pointer-events: none;
+  user-select: none;
+}
+
+/* Resizable panels */
+.resize-handle {
+  @apply bg-gray-200 hover:bg-forest-400 transition-colors;
+}
+
+/* Data table */
+.data-table th {
+  @apply sticky top-0 bg-white z-10 text-left text-sm font-semibold px-3 py-2 border-b border-gray-200;
+}
+
+.data-table td {
+  @apply text-sm px-3 py-2 border-b border-gray-100 truncate;
+}
+
+.data-table tr:hover td {
+  @apply bg-gray-50;
+}
+
+.data-table tr.selected td {
+  @apply bg-forest-50;
+}
+
+/* Lasso overlay */
+.lasso-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 10;
+}
+
+.lasso-overlay.active {
+  pointer-events: auto;
+  cursor: crosshair;
+}
